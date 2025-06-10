@@ -1,1 +1,72 @@
+def main():
+    # Set up the canvas
+    canvas = Canvas(width=400, height=300)
+    
+    # Create labels
+    canvas.create_text(100, 20, text="Millimeters", font="Arial", font_size=16, color="blue")
+    canvas.create_text(300, 20, text="Inches", font="Arial", font_size=16, color="blue")
+    
+    # Create input boxes
+    mm_box = canvas.create_text(100, 50, text="", font="Arial", font_size=14)
+    inch_box = canvas.create_text(300, 50, text="", font="Arial", font_size=14)
+    
+    # Create rectangles for input box visuals
+    canvas.create_rectangle(50, 40, 150, 60, color="lightgray", outline="black")
+    canvas.create_rectangle(250, 40, 350, 60, color="lightgray", outline="black")
+    
+    # Create Convert and Clear buttons
+    convert_button = canvas.create_rectangle(100, 100, 200, 130, color="green", outline="black")
+    canvas.create_text(150, 115, text="Convert", font="Arial", font_size=14, color="white")
+    clear_button = canvas.create_rectangle(100, 150, 200, 180, color="red", outline="black")
+    canvas.create_text(150, 165, text="Clear", font="Arial", font_size=14, color="white")
+    
+    # Main loop
+    while True:
+        # Get mouse clicks
+        clicks = canvas.get_new_mouse_clicks()
+        for click in clicks:
+            x, y = click['x'], click['y']
+            
+            # Check if Convert button is clicked
+            if 100 <= x <= 200 and 100 <= y <= 130:
+                # Get current text from boxes
+                mm_text = canvas.coords(mm_box)[1]  # Get text content
+                inch_text = canvas.coords(inch_box)[1]
+                
+                try:
+                    # If millimeters box has input, convert to inches
+                    if mm_text:
+                        mm = float(mm_text)
+                        inches = mm_to_inches(mm)
+                        canvas.change_text(inch_box, str(round(inches, 2)))
+                    # If inches box has input, convert to millimeters
+                    elif inch_text:
+                        inches = float(inch_text)
+                        mm = inches_to_mm(inches)
+                        canvas.change_text(mm_box, str(round(mm, 2)))
+                    else:
+                        canvas.create_text(150, 200, text="Enter a value to convert!", 
+                                         font="Arial", font_size=12, color="red")
+                except ValueError:
+                    canvas.create_text(150, 200, text="Invalid input! Use numbers.", 
+                                     font="Arial", font_size=12, color="red")
+            
+            # Check if Clear button is clicked
+            if 100 <= x <= 200 and 150 <= y <= 180:
+                canvas.change_text(mm_box, "")
+                canvas.change_text(inch_box, "")
+                # Clear any error messages
+                overlaps = canvas.find_overlapping(50, 190, 350, 210)
+                for obj in overlaps:
+                    canvas.delete(obj)
 
+        # Update canvas
+        canvas.update()
+
+# Conversion function: Millimeters to Inches
+def mm_to_inches(mm):
+    return mm * 0.0393701
+
+# Conversion function: Inches to Millimeters
+def inches_to_mm(inches):
+    return inches / 0.0393701
